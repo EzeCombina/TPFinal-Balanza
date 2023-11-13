@@ -110,7 +110,7 @@ void arraysRightShift(){
 void pinInitalization(){
   pinMode(pinADCInput, INPUT);
   //pinMode(pinDACOutput, OUTPUT); 
-
+  //analogReference(DEFAULT);
 }
 
 void setup() {
@@ -121,7 +121,7 @@ void setup() {
 }
 
 void loop() {
-  if(millis() - lastMeasurementTime >= SAMPLNG_PERIOD_MS){
+  if(millis() - lastMeasurementTime == SAMPLNG_PERIOD_MS){
     getInputData();
     iirLowpassButterworthFilter();
     //dacWrite(pinDACOutput, outputArray[0]);
