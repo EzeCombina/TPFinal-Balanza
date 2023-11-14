@@ -1,18 +1,13 @@
 #include <Arduino.h>
 #include <math.h>
 
-/*
-
 void setup() {
   // put your setup code here, to run once:
   pinMode(A5, INPUT);
-  pinMode(A4, OUTPUT);
+  //pinMode(A4, OUTPUT);
+  analogReference(EXTERNAL);
   Serial.begin(9600);
 }
-
-*/
-
-/*
 
 // Valores de la señal
 //float pi = 3.14159;
@@ -25,7 +20,7 @@ float Tsms = Ts *1000;           // Tiempo de muestreo en ms
 float TiempoMedido = Tsms;       // Timepo inicial
 //float TiempoMuestra = 50;
 int A = 0;
-uint16_t Sumatoria = 0;
+float Sumatoria = 0;
 
 // El tamaño de los arrays es igual al orden del denominador + 1
 
@@ -37,8 +32,9 @@ float ArraySalida[5] = {0, 0, 0, 0, 0};
 
 void loop() {
 
-  if(millis() - TiempoMedido >= Tsms)
+  if(millis() - TiempoMedido == Tsms)
   {
+    //Serial.print(analogRead(A5));
     ArrayEntrada[0] = float(analogRead(A5));
     Sumatoria = ArrayEntrada[0] * CoefEntrada[0];
 
@@ -49,6 +45,9 @@ void loop() {
 
     ArraySalida[0] = Sumatoria;
 
+    //Serial.print(" ");
+    Serial.println(ArraySalida[0]);
+
     for(int j = 4; j > 0; j--)
     {
       ArrayEntrada[j] = ArrayEntrada[j-1];
@@ -56,19 +55,18 @@ void loop() {
     }
     //Serial.println(ArraySalida[0]);
     //analogWrite(3, ArraySalida[0]);
-    if(A % 50 == 0)
-    {
-      Serial.println(ArraySalida[0]);
-    }
-    A++;
+    //if(A % 50 == 0)
+    //{
+    //  Serial.println(ArraySalida[0]);
+    //}
+    //A++;
+    delay(2000);
     TiempoMedido = millis();
   }
-
-  //Serial.print(ArraySalida[0]);
     
 }
 
-*/
+/*
 
 int fs = 110;                    // Frecuencia de muestreo 
 float Ts = 1/fs;                 // Tiempo de muestreo
@@ -110,7 +108,7 @@ void arraysRightShift(){
 void pinInitalization(){
   pinMode(pinADCInput, INPUT);
   //pinMode(pinDACOutput, OUTPUT); 
-  //analogReference(DEFAULT);
+  analogReference(EXTERNAL);
 }
 
 void setup() {
@@ -121,7 +119,7 @@ void setup() {
 }
 
 void loop() {
-  if(millis() - lastMeasurementTime == SAMPLNG_PERIOD_MS){
+  if(millis() - lastMeasurementTime >= SAMPLNG_PERIOD_MS){
     getInputData();
     iirLowpassButterworthFilter();
     //dacWrite(pinDACOutput, outputArray[0]);
@@ -134,3 +132,5 @@ void loop() {
     arraysRightShift(); 
   }
 }
+
+*/
