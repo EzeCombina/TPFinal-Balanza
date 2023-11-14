@@ -39,26 +39,34 @@ void ADC_initialization(uint8_t pin)
 }
 
 /// @brief Compara la temp con la anterior y muestra una flecha indicando si sube o baja
+
+
 int compare_result(int result, int old_weight)
 {
+    
     if (result == old_weight)
     {
         lcd_data(' ');
         return 0;
     }
-
+    
     // muestra la flecha indicando si la temp subio o bajo
     if (result > old_weight)
     {
         lcd_data(pos_flechaArriba);
+        //lcd_data(' ');
+        //return 1;
     }
     else
     {
         lcd_data(pos_flechaAbajo);
+        //lcd_data(' ');
+        //return 1;
     }
-
+    
     return 1;
 }
+
 
 void printUTN()
 {
@@ -92,10 +100,11 @@ int main()
     //int f = 1000;
 
     // Valores para la discretizacion
-    int fs = 110;              // Frecuencia de muestreo 
+    int fs = 110;               // Frecuencia de muestreo 
     float Ts = 1/fs;            // Tiempo de muestreo
     float TiempoMedido = Ts;    // Timepo inicial
-    uint16_t Sumatoria = 0;
+    float Tsms = Ts*1000;       // Tiempo inicial en ms 
+    float Sumatoria = 0;
 
     // El tamaño de los arrays es igual al orden del denominador + 1
 
@@ -116,7 +125,7 @@ int main()
     // logo utn
     char logoUTN[8] = {0x15, 0x0E, 0x04, 0x1F, 0x04, 0xE, 0x15, 0x00};
 
-    // LCD_8bits_Crea_Caracter(pos_flechaAbajo, flechaAbajo);
+    //LCD_8bits_Crea_Caracter(pos_flechaAbajo, flechaAbajo);
     lcd_create_char(pos_flechaArriba, flechaArriba);
     lcd_create_char(pos_flechaAbajo, flechaAbajo);
     lcd_create_char(pos_logoUTN, logoUTN);
@@ -125,6 +134,7 @@ int main()
 
     while (1)
     {
+        /*
         // ADCSRA[6] = 1 -> inicia una conversion
         ADCSRA |= 1 << ADSC;
         // ADIF -> interr flag, alta cuando termina la conversion
@@ -134,15 +144,25 @@ int main()
         lower_bits = ADCL;
         higher_bits = ADCH;
         adc_result = (higher_bits << 8) | lower_bits;
-
+        */
         /*----------------------------------------------------------------------------------------------*/
 
                                                 /*  FILTRO  */
 
         /*----------------------------------------------------------------------------------------------*/
 
-        if(millis() - TiempoMedido >= Ts)
+        if(millis() - TiempoMedido >= Tsms)
         {
+            // ADCSRA[6] = 1 -> inicia una conversion
+            ADCSRA |= 1 << ADSC;
+            // ADIF -> interr flag, alta cuando termina la conversion
+            while ((ADCSRA & (1 << ADIF)) == 0)
+                ;
+
+            lower_bits = ADCL;
+            higher_bits = ADCH;
+            adc_result = (higher_bits << 8) | lower_bits;
+
             ArrayEntrada[0] = adc_result;
             Sumatoria = ArrayEntrada[0] * CoefEntrada[0];
 
@@ -153,16 +173,48 @@ int main()
 
             ArraySalida[0] = Sumatoria;
             Salida = Sumatoria;
+            weight = (Salida + 0.01) * 30 / 1024;
+            ///temp_weight += weight;
 
             for(int j = 4; j > 0; j--)
             {
             ArrayEntrada[j] = ArrayEntrada[j-1];
             ArraySalida[j] = ArraySalida[j-1];
             }
+            
+            //TiempoMedido = millis();
+
+            //if (counter++ % 4 != 0)
+            //continue;
+
+            // entra cada 4 lecturas, entonces toma el promedio
+            //weight = temp_weight / 4;
+
+            // LCD_8bits_comando(0b10000011);
+            lcd_cmd(0b10000011);
+
+            if (compare_result(weight, old_weight))
+            {
+                old_weight = weight;
+                // actualiza el peso
+                ftoa(weight, temp_str);
+                lcd_print(temp_str);
+            }
+
+            // vuelve al inicio
+            lcd_cmd(0x02);
+
+            // reseteo el contador y el sumador
+            //counter = 1;
+            //temp_weight = 0;
+            _delay_ms(200);
             TiempoMedido = millis();
+
         }
 
         /*----------------------------------------------------------------------------------------------*/
+
+        /*
 
         weight = (Salida + 0.01) * 30 / 1024;
         temp_weight += weight;
@@ -173,7 +225,8 @@ int main()
         // entra cada 4 lecturas, entonces toma el promedio
         weight = temp_weight / 4;
 
-
+        */
+        /*
         // LCD_8bits_comando(0b10000011);
         lcd_cmd(0b10000011);
 
@@ -189,8 +242,10 @@ int main()
         lcd_cmd(0x02);
 
         // reseteo el contador y el sumador
-        counter = 1;
-        temp_weight = 0;
-        _delay_ms(500);
+        //counter = 1;
+        //temp_weight = 0;
+        _delay_ms(200);
+        */
+
     }
 }
