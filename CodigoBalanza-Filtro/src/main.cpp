@@ -6,10 +6,10 @@
 const char pinRs = 8;         // PB0
 const char pinRw = 9;         // PB1
 const char pinE = 10;         // PB2
-const char pinD0 = 4;         // PD4
-const char pinD1 = 5;         // PD5
-const char pinD2 = 6;         // PD6
-const char pinD3 = 7;         // PD7
+const char pinD4 = 4;         // PD4
+const char pinD5 = 5;         // PD5
+const char pinD6 = 6;         // PD6
+const char pinD7 = 7;         // PD7
 const char pinADC = A5;       // PC5
 
 // Logo UTN
@@ -38,17 +38,67 @@ const float CoefSalida[5] = {1, -0.3566, -0.5262, -0.07653, -0.02015};
 float ArrayEntrada[5] = {0, 0, 0, 0, 0};
 float ArraySalida[5] = {0, 0, 0, 0, 0}; 
 
-LiquidCrystal lcd(pinRs, pinRw, pinE, pinD0, pinD1, pinD2, pinD3);
+float Peso = 0.0;
+float valorAntiguo = 0.0;
+
+LiquidCrystal lcd(pinRs, pinRw, pinE, pinD4, pinD5, pinD6, pinD7);
 
 unsigned long TiempoMedido = 0;
 
 void calculopeso(float valorADC){
-  float Peso = (valorADC) * 30 / 1024;
+
+  //if((valorADC < valorAntiguo + 0.5) && (valorADC > valorAntiguo - 0.5))
+  //{
+  //  valorADC = valorAntiguo;
+  //}
+
+  // --- Cálculos para evitar errores en la medición --- //
+
+  valorADC = valorADC - 11;
+
+  if(valorADC <= 0.1){
+
+    Peso = 0.0;
+
+  }else if(valorADC < 30)
+  {
+    
+    Peso = (valorADC + 1) * 30 / 1024;
+  
+  }else if(valorADC > 100)
+  {
+    
+    Peso = (valorADC + 10) * 30 / 1024;
+    
+  }else{Peso = (valorADC + 5) * 30 / 1024;}
+
+  //valorAntiguo = valorADC;
+
+  /*
+  valorADC = valorADC - 11;
+  if(valorADC <= 0.1){
+
+    Peso = 0.0;
+
+  }else{Peso = (valorADC + 5) * 30 / 1024;}
+  */
+
+  //float Peso = (valorADC + 1) * 30 / 1024;
+
+  // --- Evitar que parpadee --- //
+
+  if((Peso < valorAntiguo + 0.04) && (Peso > valorAntiguo - 0.04)) 
+  {
+    Peso = valorAntiguo;
+  }
 
   lcd.setCursor(0,0);
   lcd.print("     ");
   lcd.print(Peso, 2);
-  lcd.print(" Kg");
+  lcd.print(" kg    ");
+
+  valorAntiguo = Peso;
+
 }
 
 void datosEntrada(){
@@ -76,10 +126,10 @@ void pines(){
   pinMode(pinRs, OUTPUT);
   pinMode(pinRw, OUTPUT);
   pinMode(pinE, OUTPUT);
-  pinMode(pinD0, OUTPUT);
-  pinMode(pinD1, OUTPUT);
-  pinMode(pinD2, OUTPUT);
-  pinMode(pinD3, OUTPUT);
+  pinMode(pinD4, OUTPUT);
+  pinMode(pinD5, OUTPUT);
+  pinMode(pinD6, OUTPUT);
+  pinMode(pinD7, OUTPUT);
 }
 
 void inicializacionLCD(){
@@ -95,15 +145,15 @@ void setup() {
   //lcd.clear();
   inicializacionLCD();
   TiempoMedido = millis();
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() {
   if(millis() - TiempoMedido >= TiempoMuestreoMS){
     datosEntrada();
     filtro();
+    Serial.println(ArraySalida[0]);
     calculopeso(ArraySalida[0]);
-    corrimientoArray();
-    //Serial.print("L"); 
+    corrimientoArray(); 
   }
 }
