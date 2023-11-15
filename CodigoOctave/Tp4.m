@@ -50,7 +50,7 @@ ArraySalida = [0 0 0 0 0];
 
 for i = 1:300
   n(i) = i*Ts;
-  ArrayEntrada(1) = sin(2*pi*50*n(i));
+  ArrayEntrada(1) = sin(2*pi*30*n(i));
   %ArrayEntrada(1) = 0.245
   Salida = ArrayEntrada(1) * CoefEntrada(1);
   for j = 2:5
@@ -68,8 +68,8 @@ endfor
 fig2 = figure(2)
 %plot((n-Ts), x, "r")
 %hold on;
-plot(SalidaGrafica)
-axis([1, 300, -1, 1])
+stairs(SalidaGrafica)
+axis([1, 300, -1.5, 1.5])
 title("Respuesta")
 legend("Salida")
 %saveas(fig2,'50Hz','jpg')

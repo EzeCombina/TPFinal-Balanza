@@ -52,9 +52,9 @@ void calculopeso(float valorADC){
   //  valorADC = valorAntiguo;
   //}
 
-  // --- Cálculos para evitar errores en la medición --- //
+  // --- Cálculos para evitar errores en la medición --- Habria que realizar una función de linealización //
 
-  valorADC = valorADC - 11;
+  valorADC = valorADC - 9.5;
 
   if(valorADC <= 0.1){
 
@@ -63,14 +63,14 @@ void calculopeso(float valorADC){
   }else if(valorADC < 30)
   {
     
-    Peso = (valorADC + 1) * 30 / 1024;
+    Peso = (valorADC + 2) * 30 / 1023;
   
   }else if(valorADC > 100)
   {
     
-    Peso = (valorADC + 10) * 30 / 1024;
+    Peso = (valorADC + 10) * 30 / 1023;
     
-  }else{Peso = (valorADC + 5) * 30 / 1024;}
+  }else{Peso = (valorADC + 5) * 30 / 1023;}
 
   //valorAntiguo = valorADC;
 
@@ -87,7 +87,7 @@ void calculopeso(float valorADC){
 
   // --- Evitar que parpadee --- //
 
-  if((Peso < valorAntiguo + 0.04) && (Peso > valorAntiguo - 0.04)) 
+  if((Peso < valorAntiguo + 0.025) && (Peso > valorAntiguo - 0.025)) 
   {
     Peso = valorAntiguo;
   }
